@@ -98,6 +98,7 @@ const ContactSection = () => {
           console.log('Email sent successfully:', result.text);
           setSendSuccess(true);
           form.current.reset();
+          setMessage(''); // Clear the message state as well
       })
       .catch((error) => {
           console.error('Email sending failed:', error);
@@ -175,10 +176,20 @@ const ContactSection = () => {
       
     } catch (error) {
       console.error('AI Enhancement Error:', error);
-      setAiError(error.message.includes('API key') ? 
-        'OpenAI API key not configured. Please set VITE_OPENAI_API_KEY in your .env file.' :
-        'Failed to enhance message. Please try again.'
-      );
+      
+      let errorMessage = 'Failed to enhance message. Please try again.';
+      
+      if (error.message.includes('API key')) {
+        errorMessage = 'OpenAI API key not configured. Please set VITE_OPENAI_API_KEY in your .env file.';
+      } else if (error.message.includes('429')) {
+        errorMessage = 'AI service is currently busy. Please wait a moment and try again.';
+      } else if (error.message.includes('401')) {
+        errorMessage = 'Invalid API key. Please check your OpenAI API key configuration.';
+      } else if (error.message.includes('quota')) {
+        errorMessage = 'API quota exceeded. Please check your OpenAI billing status.';
+      }
+      
+      setAiError(errorMessage);
     } finally {
       setIsEnhancing(false);
     }
@@ -706,12 +717,19 @@ const ContactSection = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-3 p-3 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-700 rounded-lg"
+                    className="mt-3 p-4 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-700 rounded-lg"
                   >
-                    <div className="flex items-center space-x-2 text-sm text-red-700 dark:text-red-300">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span className="font-semibold">AI Enhancement Failed:</span>
-                      <span>{aiError}</span>
+                    <div className="flex items-start space-x-3 text-sm text-red-700 dark:text-red-300">
+                      <AlertTriangle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="font-semibold mb-1">AI Enhancement Failed:</div>
+                        <div>{aiError}</div>
+                        {aiError.includes('quota') && (
+                          <div className="mt-2 text-xs">
+                            💡 You can still send messages without AI enhancement, or add billing to your OpenAI account.
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 )}
