@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import PerformanceMonitor from './components/PerformanceMonitor';
 
 // Lazy load components for better performance
 const Home = React.lazy(() => import('./pages/Home'));
@@ -38,48 +39,50 @@ const PageWrapper = ({ children }) => (
 
 function App() {
   return (
-    <Router>
-      <div className="App relative">
-        <AnimatePresence mode="wait">
-          <Suspense fallback={<LoadingScreen />}>
-            <Routes>
-                <Route 
-                  path="/" 
-                  element={
-                    <PageWrapper>
-                      <Home />
-                    </PageWrapper>
-                  } 
-                />
-                <Route 
-                  path="/blog" 
-                  element={
-                    <PageWrapper>
-                      <BlogPage />
-                    </PageWrapper>
-                  } 
-                />
-                <Route 
-                  path="/blog/:slug" 
-                  element={
-                    <PageWrapper>
-                      <BlogPostPage />
-                    </PageWrapper>
-                  } 
-                />
-                <Route 
-                  path="/resume"
-                  element={( <PageWrapper> <ResumePage /> </PageWrapper> )}
-                />
-                <Route 
-                  path="/downloads"
-                  element={( <PageWrapper> <DownloadsPage /> </PageWrapper> )}
-                />
-              </Routes>
-            </Suspense>
-          </AnimatePresence>
-        </div>
-      </Router>
+    <PerformanceMonitor>
+      <Router>
+        <div className="App relative">
+          <AnimatePresence mode="wait">
+            <Suspense fallback={<LoadingScreen />}>
+              <Routes>
+                  <Route 
+                    path="/" 
+                    element={
+                      <PageWrapper>
+                        <Home />
+                      </PageWrapper>
+                    } 
+                  />
+                  <Route 
+                    path="/blog" 
+                    element={
+                      <PageWrapper>
+                        <BlogPage />
+                      </PageWrapper>
+                    } 
+                  />
+                  <Route 
+                    path="/blog/:slug" 
+                    element={
+                      <PageWrapper>
+                        <BlogPostPage />
+                      </PageWrapper>
+                    } 
+                  />
+                  <Route 
+                    path="/resume"
+                    element={( <PageWrapper> <ResumePage /> </PageWrapper> )}
+                  />
+                  <Route 
+                    path="/downloads"
+                    element={( <PageWrapper> <DownloadsPage /> </PageWrapper> )}
+                  />
+                </Routes>
+              </Suspense>
+            </AnimatePresence>
+          </div>
+        </Router>
+      </PerformanceMonitor>
   );
 }
 

@@ -138,9 +138,9 @@ const AboutSection = () => {
                 <img
                   src="/pp.jpg"
                   alt={personalInfo.name}
-                  className="relative w-48 h-48 rounded-full border-4 border-slate-800 dark:border-slate-700 object-cover object-right shadow-xl"
+                  className="relative w-48 h-48 rounded-full border-4 border-slate-800 dark:border-slate-700 object-cover object-center shadow-xl"
                   style={{ 
-                    objectPosition: '75% center',
+                    objectPosition: 'center center',
                     filter: 'contrast(1.1) brightness(1.05) saturate(1.1)'
                   }}
                 />
