@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import emailjs from '@emailjs/browser';
 import { portfolio } from '../data/portfolio';
-import { Send, Loader, CheckCircle, AlertTriangle, Download, FileText, Award, Mail, Phone, MessageCircle, Zap, Sparkles, Star } from 'lucide-react';
+import { Send, Loader, CheckCircle, AlertTriangle, Download, FileText, Award, Mail, Phone, MessageCircle, Zap, Sparkles, Star, Bot, Wand2, RefreshCw, ThumbsUp, Lightbulb } from 'lucide-react';
 
 const FloatingElements = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -69,6 +69,11 @@ const ContactSection = () => {
   const [sendSuccess, setSendSuccess] = useState(false);
   const [sendError, setSendError] = useState(false);
   const [focusedField, setFocusedField] = useState('');
+  const [message, setMessage] = useState('');
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [showAIOptions, setShowAIOptions] = useState(false);
+  const [originalMessage, setOriginalMessage] = useState('');
+  const [aiError, setAiError] = useState('');
 
   const sendEmail = (e) => {
     e.preventDefault();
@@ -112,6 +117,103 @@ const ContactSection = () => {
     link.click();
     document.body.removeChild(link);
   };
+
+  const enhanceMessage = async (style = 'improve') => {
+    if (!message.trim()) return;
+    
+    setIsEnhancing(true);
+    setOriginalMessage(message);
+    setAiError('');
+    
+    try {
+      const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+      
+      if (!apiKey) {
+        throw new Error('OpenAI API key not configured');
+      }
+
+      const prompts = {
+        improve: "Please rewrite this message to make it more professional, clear, and engaging while maintaining the original intent and meaning:",
+        professional: "Please rewrite this message in a formal, professional business tone suitable for job inquiries or business proposals:",
+        friendly: "Please rewrite this message in a warm, friendly, and approachable tone while keeping it professional:",
+        concise: "Please rewrite this message to be more concise and to-the-point while keeping the key information:",
+        detailed: "Please expand this message with more details, context, and professional structure suitable for business communication:"
+      };
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a professional communication assistant. Help rewrite messages for job applications, business inquiries, and professional networking. Keep the tone appropriate for contacting a DevOps engineer about potential opportunities.'
+            },
+            {
+              role: 'user',
+              content: `${prompts[style]}\n\nOriginal message: "${message}"`
+            }
+          ],
+          max_tokens: 500,
+          temperature: 0.7
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const enhancedMessage = data.choices[0].message.content.trim();
+      
+      setMessage(enhancedMessage);
+      setShowAIOptions(true); // Keep options visible for retry
+      
+    } catch (error) {
+      console.error('AI Enhancement Error:', error);
+      setAiError(error.message.includes('API key') ? 
+        'OpenAI API key not configured. Please set VITE_OPENAI_API_KEY in your .env file.' :
+        'Failed to enhance message. Please try again.'
+      );
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
+  const retryAI = () => {
+    if (originalMessage) {
+      setMessage(originalMessage);
+      setAiError('');
+    }
+  };
+
+  const revertMessage = () => {
+    setMessage(originalMessage);
+    setOriginalMessage('');
+  };
+
+  const handleMessageChange = (e) => {
+    setMessage(e.target.value);
+    setShowAIOptions(e.target.value.length > 10);
+    setAiError(''); // Clear any AI errors when user types
+  };
+
+  const useSuggestion = (suggestion) => {
+    setMessage(suggestion);
+    setShowAIOptions(true);
+  };
+
+  const messageSuggestions = [
+    "Hi! I'm interested in discussing a DevOps project opportunity with you.",
+    "Hello! I'd love to connect about potential collaboration on cloud infrastructure.",
+    "Hi Sai Ram! Your portfolio is impressive. Let's discuss a project opportunity.",
+    "Hello! I'm reaching out regarding a potential job opportunity that matches your skills.",
+    "Hi! I'd like to discuss a consulting opportunity for AWS/DevOps expertise."
+  ];
 
   const downloadRecommendation = () => {
     const link = document.createElement('a');
@@ -426,17 +528,154 @@ const ContactSection = () => {
                   <span className="flex items-center space-x-2">
                     <span>Message</span>
                     <Sparkles className="w-4 h-4 text-cyan-500 animate-pulse" />
+                    <motion.span 
+                      className="text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-1 rounded-full"
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      AI Enhanced
+                    </motion.span>
                   </span>
                 </label>
-                <textarea 
-                  name="message" 
-                  required 
-                  rows="6"
-                  onFocus={() => setFocusedField('message')}
-                  onBlur={() => setFocusedField('')}
-                  className="w-full px-6 py-4 bg-white/80 dark:bg-slate-700/80 backdrop-blur-sm border-2 border-slate-300 dark:border-slate-600 rounded-xl focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 text-lg font-medium placeholder-slate-400 resize-none"
-                  placeholder="Tell me about your amazing project or opportunity! 🚀"
-                />
+                
+                <div className="relative">
+                  <textarea 
+                    name="message" 
+                    required 
+                    rows="6"
+                    value={message}
+                    onChange={handleMessageChange}
+                    onFocus={() => setFocusedField('message')}
+                    onBlur={() => setFocusedField('')}
+                    className="w-full px-6 py-4 bg-white/80 dark:bg-slate-700/80 backdrop-blur-sm border-2 border-slate-300 dark:border-slate-600 rounded-xl focus:ring-4 focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 text-lg font-medium placeholder-slate-400 resize-none"
+                    placeholder="Tell me about your amazing project or opportunity! 🚀"
+                  />
+                  
+                  {/* AI Enhancement Buttons */}
+                  {showAIOptions && !isEnhancing && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      className="absolute top-4 right-4 flex flex-wrap gap-2"
+                    >
+                      <motion.button
+                        type="button"
+                        onClick={() => enhanceMessage('improve')}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center space-x-1 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        <Bot className="w-3 h-3" />
+                        <span>✨ Improve</span>
+                      </motion.button>
+                      
+                      <motion.button
+                        type="button"
+                        onClick={() => enhanceMessage('professional')}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center space-x-1 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        <Bot className="w-3 h-3" />
+                        <span>Professional</span>
+                      </motion.button>
+                      
+                      <motion.button
+                        type="button"
+                        onClick={() => enhanceMessage('friendly')}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center space-x-1 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        <ThumbsUp className="w-3 h-3" />
+                        <span>Friendly</span>
+                      </motion.button>
+                      
+                      <motion.button
+                        type="button"
+                        onClick={() => enhanceMessage('concise')}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center space-x-1 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        <Zap className="w-3 h-3" />
+                        <span>Concise</span>
+                      </motion.button>
+                      
+                      <motion.button
+                        type="button"
+                        onClick={() => enhanceMessage('detailed')}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center space-x-1 px-3 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        <Lightbulb className="w-3 h-3" />
+                        <span>Detailed</span>
+                      </motion.button>
+                    </motion.div>
+                  )}
+                  
+                  {/* AI Processing Indicator */}
+                  {isEnhancing && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="absolute inset-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl flex items-center justify-center"
+                    >
+                      <div className="flex items-center space-x-3 text-blue-600 dark:text-blue-400">
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        >
+                          <Wand2 className="w-6 h-6" />
+                        </motion.div>
+                        <span className="text-lg font-bold">AI is enhancing your message...</span>
+                        <motion.div
+                          animate={{ scale: [1, 1.2, 1] }}
+                          transition={{ duration: 0.5, repeat: Infinity }}
+                        >
+                          <Sparkles className="w-5 h-5" />
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  )}
+                  
+                  {/* Revert & Retry Buttons */}
+                  {(originalMessage || aiError) && !isEnhancing && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="absolute bottom-4 right-4 flex space-x-2"
+                    >
+                      {originalMessage && (
+                        <motion.button
+                          type="button"
+                          onClick={revertMessage}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          <span>Revert</span>
+                        </motion.button>
+                      )}
+                      
+                      {aiError && (
+                        <motion.button
+                          type="button"
+                          onClick={retryAI}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                          <span>Retry AI</span>
+                        </motion.button>
+                      )}
+                    </motion.div>
+                  )}
+                </div>
+                
                 {focusedField === 'message' && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0 }}
@@ -444,6 +683,91 @@ const ContactSection = () => {
                     className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center"
                   >
                     <Star className="w-3 h-3 text-white" />
+                  </motion.div>
+                )}
+                
+                {/* AI Enhancement Info */}
+                {showAIOptions && !aiError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-700 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-2 text-sm text-blue-700 dark:text-blue-300">
+                      <Bot className="w-4 h-4 animate-pulse" />
+                      <span className="font-semibold">Real AI Assistant Active</span>
+                      <span>- Powered by ChatGPT! Click any style above to enhance your message!</span>
+                    </div>
+                  </motion.div>
+                )}
+                
+                {/* AI Error Display */}
+                {aiError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-3 p-3 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-700 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-2 text-sm text-red-700 dark:text-red-300">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span className="font-semibold">AI Enhancement Failed:</span>
+                      <span>{aiError}</span>
+                    </div>
+                  </motion.div>
+                )}
+                
+                {/* AI Message Suggestions */}
+                {message.length === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4"
+                  >
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Lightbulb className="w-5 h-5 text-yellow-500 animate-pulse" />
+                      <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Quick Start Suggestions:</span>
+                    </div>
+                    
+                    <div className="grid gap-2">
+                      {messageSuggestions.map((suggestion, index) => (
+                        <motion.button
+                          key={index}
+                          type="button"
+                          onClick={() => useSuggestion(suggestion)}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          whileHover={{ scale: 1.02, x: 5 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="text-left p-3 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-600 border border-slate-200 dark:border-slate-600 rounded-lg hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-300 group"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full group-hover:scale-150 transition-transform duration-300" />
+                            <span className="text-sm text-slate-700 dark:text-slate-300 group-hover:text-blue-700 dark:group-hover:text-blue-300">
+                              {suggestion}
+                            </span>
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              whileHover={{ opacity: 1 }}
+                              className="ml-auto"
+                            >
+                              <Zap className="w-4 h-4 text-blue-500" />
+                            </motion.div>
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+                    
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      className="mt-3 text-center"
+                    >
+                      <span className="text-xs text-slate-500 dark:text-slate-400 italic">
+                        💡 Click any suggestion to start, then use AI enhancement buttons to refine your message!
+                      </span>
+                    </motion.div>
                   </motion.div>
                 )}
               </motion.div>
