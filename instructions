@@ -1,0 +1,35 @@
+// 🚀 Build a complete, production-ready personal portfolio website from scratch using:
+// → React + Vite
+// → Tailwind CSS for styling
+// → Framer Motion for animation
+// → Three.js or Lottie for visual/3D effects
+// → Email.js or Formspree for contact form
+
+// 🎯 This portfolio should look like it was built by a 10+ year senior developer. No placeholders.
+// Design and content must be original, advanced, and visually stunning. UX must be fluid and responsive.
+
+// 👤 Profile: Sai Ram – Software Developer | DevOps Engineer | Terraform Developer | Infrastructure & Systems Engineer
+// Portfolio must reflect full-stack and infrastructure expertise.
+
+// ✨ Sections to include:
+// 1. Hero section with animated 3D background and bold intro
+// 2. About section with auto-generated text showcasing multi-role experience
+// 3. Skills grid (React, Terraform, Kubernetes, Docker, Python, GCP, AWS, GitHub Actions, etc.)
+// 4. Projects gallery (each with live demo + GitHub + tools used + summary + learnings)
+// 5. DevOps section with pipeline diagrams, Terraform modules, IaC architecture cards
+// 6. System Engineering section showing shell scripts, system design, uptime charts
+// 7. Blog/Articles page with 3–5 professional blog posts auto-filled
+// 8. Resume download section (with badge-based skills and summary highlights)
+// 9. Contact form with validation and animated icons
+// 10. Light/dark mode, mobile responsiveness, SEO, accessibility, page transitions
+
+// 🎨 Design instructions:
+// - Use glassmorphism for cards and popups
+// - Use Framer Motion for fade-in, slide-in animations
+// - Use modern Google Fonts like Inter, Raleway
+// - Add a parallax scroll or animated particles background
+// - Minimalistic but highly engaging visuals
+
+// 🧠 All content must sound like it was written by a senior engineer.
+// Auto-generate professional summaries, titles, and blog content using natural language.
+// Don't ask for user input. Build everything end-to-end autonomously.

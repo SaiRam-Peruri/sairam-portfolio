@@ -1,0 +1,117 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm/
+
+# Production builds
+dist/
+dist-ssr/
+build/
+*.local
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# Vercel
+.vercel
+.vercel.json
+
+# Logs
+logs/
+*.log
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# PDF Processing - Resume Files (Keep personal resumes private)
+resume/*.pdf
+resume/*.PDF
+
+# BUT allow specific professional documents
+!LetterofRecommendation_*.pdf
+!recommendation_*.pdf
+
+# Generated/Extracted Data
+extract_resume/*.json
+portfolio_config.json
+ultimate_multi_pdf_portfolio_data.json
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+*.sublime-project
+*.sublime-workspace
+.idea/
+.vscode/settings.json
+.vscode/launch.json
+
+# Package files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Professional documents (allowed)
+# LetterofRecommendation_*.pdf - These are allowed
+# recommendation_*.pdf - These are allowed
+
+# Other sensitive files
+private_*.pdf
+confidential_*.*
+secret_*.*
